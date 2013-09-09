@@ -154,12 +154,15 @@
 
 -(void) applicationDidEnterBackground:(UIApplication*)application
 {
+    [LiSession sessionPause];
 	if( [navController_ visibleViewController] == director_ )
 		[director_ stopAnimation];
 }
 
 -(void) applicationWillEnterForeground:(UIApplication*)application
 {
+    [LiKitIAP refreshStore];
+    [LiSession sessionResume];
 	if( [navController_ visibleViewController] == director_ )
 		[director_ startAnimation];
 }
@@ -167,6 +170,21 @@
 // application will be killed
 - (void)applicationWillTerminate:(UIApplication *)application
 {
+    [LiSession sessionEnd];
+    // Logout users if they've logged in. Not doing anything else here cos we don't have special processing
+    // needs in the sample app.
+    BOOL userIsRegistered = [[User getCurrentUser] userIsRegistered];
+    BOOL userIsRegisteredFacebook = [[User getCurrentUser] userIsRegisteredFacebook];
+    if (userIsRegisteredFacebook){
+        [User facebookLogoutWithBlock:^(NSError *error, NSString *itemID, Actions action) {
+            NSLog(@"Logged out Facebook user");
+        }];
+    } else if (userIsRegistered){
+        [User logoutWithBlock:^(NSError *error, NSString *itemID, Actions action) {
+            NSLog(@"Logged Out User");
+        }];
+    }
+    
 	CC_DIRECTOR_END();
 }
 
