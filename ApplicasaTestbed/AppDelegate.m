@@ -15,7 +15,7 @@
 #import "VirtualCurrency.h"
 #import "VirtualGood.h"
 #import "LiSession.h"
-#import <FacebookSDK/FBSession.h>
+#import "LiObjPushNotification.h"
 
 @implementation MyNavigationController
 
@@ -65,6 +65,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    
+    // Clear any icon badges
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
+    
 	// Create the main window
 	window_ = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 	
@@ -176,6 +180,53 @@
 -(void) applicationSignificantTimeChange:(UIApplication *)application
 {
 	[[CCDirector sharedDirector] setNextDeltaTimeZero:YES];
+}
+
+#pragma mark
+#pragma mark LiCore delegate methods
+
+- (void)finishedInitializeLiCoreFrameworkWithUser:(User*)user isFirstLoad:(BOOL)isFirst
+{
+    // Lets us know that the Applicasa core framework has finished loading
+    NSLog(@"We initialized Applicasa ... wahooo");
+    //[LiKitFacebook setPermissions:[NSArray arrayWithObject:@"publish_stream"] AllowLoginUI:YES];
+    
+}
+
+- (void)liCoreHasNewUser:(User *)user {
+    // This delegate method can be implemented if you wish to know when a new user exists
+    NSLog(@"New User!!!");
+}
+
+#pragma mark
+#pragma mark LiKitIAP delegate methods
+
+- (void)finishedIntializedLiKitIAPWithVirtualCurrencies:(NSArray *)virtualCurrencies VirtualGoods:(NSArray *)virtualGoods {
+    
+    NSLog(@"############  FROM DELEGATE METHOD   ##############");
+    NSLog(@"############  Refreshing controllers ##############");
+    
+    // Lets us know that IAP has loaded
+    // Provides arrays of virtual goods & currencies that can be used immediately
+    //[self refreshViewControllers];
+}
+
+
+#pragma mark
+#pragma mark Push Notification Delegate Methods
+
+- (void) application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
+    [LiCore registerDeviceToken:deviceToken];
+}
+
+- (void) application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error{
+    [LiCore failToRegisterDeviceToken];
+}
+
+- (void) application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo{
+    LiObjPushNotification *pushInstance = [LiObjPushNotification pushWithDictionary:userInfo];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Egg says" message:pushInstance.message delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil, nil];
+    [alert show];
 }
 
 @end

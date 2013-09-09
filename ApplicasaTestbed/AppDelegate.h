@@ -7,13 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <LiCore/LiCore.h>
 #import "cocos2d.h"
+#import "LiPromo.h"
 
 // Added only for iOS 6 support
 @interface MyNavigationController : UINavigationController <CCDirectorDelegate>
 @end
 
-@interface AppController : NSObject <UIApplicationDelegate>
+@interface AppController : NSObject <UIApplicationDelegate, LiCoreInitializeDelegate>
 {
 	UIWindow *window_;
 	MyNavigationController *navController_;
